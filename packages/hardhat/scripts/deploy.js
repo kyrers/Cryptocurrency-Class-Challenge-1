@@ -2,12 +2,12 @@ const { ethers } = require("hardhat");
 
 async function main() {
     //Get the contract to deploy
-    const helloWorldFactory = await ethers.getContractFactory("HelloWorld");
-    const helloWorld = await helloWorldFactory.deploy();
+    const factory = await ethers.getContractFactory("UpdatableHelloWorld");
+    const contract = await factory.deploy("Hello World!");
   
-    await helloWorld.deployed();
+    await contract.deployed();
   
-    console.log("Hello World deployed to:", helloWorld.address);
+    console.log("Updatable Hello World deployed to:", contract.address);
   }
   
   main()
