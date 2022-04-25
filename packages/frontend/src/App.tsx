@@ -1,19 +1,16 @@
 //IMPORTS
-import { ethers } from 'ethers';
-import { useState } from 'react';
-import { targetNetwork, contractAddress } from './config/Config';
-import UpdatableHelloWorldArtifact from "./artifacts/contracts/UpdatableHelloWorld.sol/UpdatableHelloWorld.json"
+import { JsonRpcSigner } from '@ethersproject/providers';
+import { useEffect, useState } from 'react';
+import { targetNetwork } from './config/Config';
 import { Button } from 'react-bootstrap';
+import { connect } from './hooks/connect';
+import { loadContract } from './hooks/loadContract';
 import './App.css';
 //-----
 
-//CONSTS
-const provider = new ethers.providers.StaticJsonRpcProvider(targetNetwork.rpcUrl);
-const signer = provider.getSigner();
-const UpdatableHelloWorldContract = new ethers.Contract(contractAddress, UpdatableHelloWorldArtifact.abi, signer);
-//-----
-
 function App() {
+  const [userSigner, setUserSigner] = useState<JsonRpcSigner | null>();
+  const [connectedWallet, setConnectedWallet] = useState("");
   const [message, setMessage] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState();
@@ -21,45 +18,57 @@ function App() {
   const [searchAddress, setSearchAddress] = useState("");
   const [searchMessageIndex, setSearchMessageIndex] = useState(0);
 
-  async function requestAccount() {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-  }
+  //Connect user wallet
+  useEffect(() => {
+    async function promptConnect() {
+      const { signer, signerAddress } = await connect();
+      setUserSigner(signer);
+      setConnectedWallet(signerAddress);
+    }
+    promptConnect();
+  }, []);
 
+  //Listen to wallet changes
+  window.ethereum.on('accountsChanged', () => {
+    window.location.reload();
+  });
+
+  //Load contract using user account
+  const updatableHelloWorldContract = loadContract(userSigner);
+
+  //Get the latest message
   async function latestMessage() {
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount();
-      const transaction = await UpdatableHelloWorldContract.getLatestMessage();
-      const receipt = await transaction.wait();
-      console.log("TRANSACTION", transaction);
-      console.log("RECEIPT", receipt);
-      setUser(receipt.events[0].args[0]);
-      setMessage(receipt.events[0].args[1]);
-    }
+    const transaction = await updatableHelloWorldContract.getLatestMessage();
+    const receipt = await transaction.wait();
+    setUser(receipt.events[0].args[0]);
+    setMessage(receipt.events[0].args[1]);
   }
 
+  //Update the current message
   async function updateMessage() {
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount();
-      const transaction = await UpdatableHelloWorldContract.updateMessage(newMessage);
-      const receipt = await transaction.wait();
-      console.log("TRANSACTION", transaction);
-      console.log("RECEIPT", receipt);
-    }
+    await updatableHelloWorldContract.updateMessage(newMessage);
   }
 
+  //Get a specific user, specific message
   async function getUserMessage() {
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount();
-      setUserMessage(undefined);
-      const message = await UpdatableHelloWorldContract.getUserMessage(searchAddress, searchMessageIndex);
-      setUserMessage(message);
-    }
+    setUserMessage(undefined);
+    const message = await updatableHelloWorldContract.getUserMessage(searchAddress, searchMessageIndex);
+    setUserMessage(message);
   }
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Updatable Hello World</h1>
+        <h5 className="header-target-network">{targetNetwork.name}</h5>
+        <Button onClick={connect}>
+          {
+            connectedWallet !== "" ?
+              <span>{connectedWallet}</span>
+              :
+              <span>Connect</span>
+          }
+        </Button>
       </header>
 
       <hr />
@@ -69,11 +78,11 @@ function App() {
           {
             message !== undefined && user !== undefined ?
               <div>
-                <span>{message}</span>
+                <span><b>{message}</b></span>
                 <br />
                 <span>by</span>
                 <br />
-                <span>{user}</span>
+                <span><b>{user}</b></span>
               </div>
               :
               null

@@ -1,5 +1,6 @@
 .App {
-  text-align: center;;
+  text-align: center;
+  ;
 }
 
 .App-logo {
@@ -16,6 +17,13 @@
 .App-header {
   color: white;
   text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-target-network {
+  color: #e0d068
 }
 
 .App-link {
@@ -26,6 +34,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -34,6 +43,7 @@
 .custom-input {
   display: inline-flex;
   width: 50vh !important;
+  margin-bottom: 20px;
 }
 
 .margin-bottom-20 {
