@@ -12,9 +12,7 @@ describe("Updatable Hello World contract", function () {
 
   describe("DEPLOYMENT", function () {
     it("Should set the message to \"Hello World!\"", async function () {
-      const getLatestMessageTx = await contract.getLatestMessage();
-      const getLatestMessageReceipt = await getLatestMessageTx.wait();
-      const message = getLatestMessageReceipt.events[0].args.message;
+      const message = await contract.messages(0);
 
       expect(message).to.equal("Hello World!");
     });
@@ -39,10 +37,9 @@ describe("Updatable Hello World contract", function () {
     it("Should update message to \"Updated Hello World!\"", async function () {
       const [owner] = await ethers.getSigners();
 
-      await contract.updateMessage("Updated Hello World!");
-      const getLatestMessageTx = await contract.getLatestMessage();
-      const getLatestMessageReceipt = await getLatestMessageTx.wait();
-      const message = getLatestMessageReceipt.events[0].args.message;
+      const updateMessageTx = await contract.updateMessage("Updated Hello World!");
+      const updateMessageTxReceipt =  await updateMessageTx.wait();
+      const message = updateMessageTxReceipt.events[0].args.message;
 
       expect(message).to.equal("Updated Hello World!");
     });
@@ -65,16 +62,15 @@ describe("Updatable Hello World contract", function () {
   });
 
   describe("GET LATEST MESSAGE", function () {
-    it("Should emit the LatestMessage event and return our deployer address + \"Hello World!\"", async function () {
+    it("Should return the  \"Hello World!\" + our deployer address", async function () {
       const [owner] = await ethers.getSigners();
 
-      const getLatestMessageTx = await contract.getLatestMessage();
-      const getLatestMessageReceipt = await getLatestMessageTx.wait();
-      const address = getLatestMessageReceipt.events[0].args.user;
-      const message = getLatestMessageReceipt.events[0].args.message;
+      const getLatestMessage = await contract.getLatestMessage();
+      const message = getLatestMessage[0];
+      const address = getLatestMessage[1];
 
-      expect(address).to.equal(owner.address);
       expect(message).to.equal("Hello World!");
+      expect(address).to.equal(owner.address);
     });
   });
 
@@ -104,13 +100,5 @@ describe("Updatable Hello World contract", function () {
       const [owner, signer] = await ethers.getSigners();
       await expect(contract.getUserMessage(signer.address, 0)).to.be.reverted;
     });
-
-    /*it("Should set the our address latest message to \"Updated Hello World!\"", async function () {
-      const [owner] = await ethers.getSigners();
-      await contract.updateMessage("Updated Hello World!");
-      const userMessage = await contract.getUserMessage(owner.address, 1);
-
-      expect(userMessage).to.equal("Updated Hello World!");
-    });*/
   });
 });

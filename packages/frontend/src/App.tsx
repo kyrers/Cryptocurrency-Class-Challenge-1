@@ -24,6 +24,7 @@ function App() {
       const { signer, signerAddress } = await connect();
       setUserSigner(signer);
       setConnectedWallet(signerAddress);
+      //latestMessage();
     }
     promptConnect();
   }, []);
@@ -36,12 +37,17 @@ function App() {
   //Load contract using user account
   const updatableHelloWorldContract = loadContract(userSigner);
 
+  //Listen to LatestMessage event
+  /*updatableHelloWorldContract.on("LatestMessage", (address, message) => {
+    setMessage(message);
+    setUser(address);
+  });*/
+
   //Get the latest message
   async function latestMessage() {
-    const transaction = await updatableHelloWorldContract.getLatestMessage();
-    const receipt = await transaction.wait();
-    setUser(receipt.events[0].args[0]);
-    setMessage(receipt.events[0].args[1]);
+    const output = await updatableHelloWorldContract.getLatestMessage();
+    setMessage(output[0]);
+    setUser(output[1]);
   }
 
   //Update the current message
@@ -49,7 +55,7 @@ function App() {
     await updatableHelloWorldContract.updateMessage(newMessage);
   }
 
-  //Get a specific user, specific message
+  //Get a specific user message
   async function getUserMessage() {
     setUserMessage(undefined);
     const message = await updatableHelloWorldContract.getUserMessage(searchAddress, searchMessageIndex);

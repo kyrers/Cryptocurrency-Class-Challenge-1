@@ -40,20 +40,23 @@ contract UpdatableHelloWorld {
     }
 
     /**
-    * @notice Update the current mesage, latest submitter and the mapping
+    * @notice Update the current mesage, latest submitter and the mapping. Finally, emit the LatestMessage event.
     * @param _newMessage The initial message
     */
     function updateMessage(string memory _newMessage) external {
         messages.push(_newMessage);
         userMessages[msg.sender].push(_newMessage);
         latestSubmitter = msg.sender;
+        emit LatestMessage(latestSubmitter, _newMessage);
     }
 
     /**
-    * @notice Emit the LatestMessage event, that contains the latest message and who submitted it
+    * @notice Get the latest message and who submitted it
+    * @return The latest message
+    * @return The latest submitter
     */
-    function getLatestMessage() public {
-        emit LatestMessage(latestSubmitter, messages[messages.length - 1]);
+    function getLatestMessage() external view returns (string memory, address) {
+        return (messages[messages.length - 1], latestSubmitter);
     }
 
     /**
