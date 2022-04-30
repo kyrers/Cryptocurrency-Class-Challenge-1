@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
 
 const rinkebyAccountPk = "YOUR_RINKEBY_ACCOUNT_PK";
+const infuraID = "YOUR_INFURA_ID";
 
 module.exports = {
   solidity: "0.8.13",
@@ -15,11 +16,14 @@ module.exports = {
     artifacts: '../frontend/src/artifacts'
   },
   etherscan: {
-    apiKey: "R793ZM9QYJDTFKWX3V2W3B9UX7XWIDHPUI"
+    apiKey: "YOUR_ETHERSCAN_API_KEY"
   },
   networks: {
+    localhost: {
+      url: "http://localhost:8545"
+    },
     rinkeby: {
-      url: "https://rinkeby.infura.io/v3/YOUR_INFURA_ID",
+      url: `https://rinkeby.infura.io/v3/${infuraID}`,
       accounts: [`${rinkebyAccountPk}`],
     }
   }

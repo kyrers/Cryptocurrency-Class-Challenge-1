@@ -1,8 +1,8 @@
 # Updatable Hello World
 
-## [Contract](https://rinkeby.etherscan.io/address/0x1BD8276D09f88063cFCd007aD13aC3958E0eb41D)
+## [Contract](https://rinkeby.etherscan.io/address/0x5716879f436530131bE3fbCB719b3FEd1B7a0F83)
 
-## [App](https://valuable-planes.surge.sh/) 
+## [App](https://splendid-drain.surge.sh/) 
 
 
 This project comes as a solution to Patrick McCorry's Cryptocurrency Class 2022 challenge 1. 

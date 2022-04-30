@@ -6,9 +6,11 @@ import { Button } from 'react-bootstrap';
 import { connect } from './hooks/connect';
 import { loadContract } from './hooks/loadContract';
 import './App.css';
+import { ethers } from 'ethers';
 //-----
 
 function App() {
+  //const [updatableHelloWorldContract, setContract] = useState<ethers.Contract | null>();
   const [userSigner, setUserSigner] = useState<JsonRpcSigner | null>();
   const [connectedWallet, setConnectedWallet] = useState("");
   const [message, setMessage] = useState();
@@ -24,7 +26,6 @@ function App() {
       const { signer, signerAddress } = await connect();
       setUserSigner(signer);
       setConnectedWallet(signerAddress);
-      //latestMessage();
     }
     promptConnect();
   }, []);
@@ -34,14 +35,15 @@ function App() {
     window.location.reload();
   });
 
-  //Load contract using user account
   const updatableHelloWorldContract = loadContract(userSigner);
 
   //Listen to LatestMessage event
-  /*updatableHelloWorldContract.on("LatestMessage", (address, message) => {
-    setMessage(message);
-    setUser(address);
-  });*/
+  if (updatableHelloWorldContract != null && updatableHelloWorldContract.provider != null) {
+    updatableHelloWorldContract.on("LatestMessage", (address, message) => {
+      setMessage(message);
+      setUser(address);
+    });
+  }
 
   //Get the latest message
   async function latestMessage() {
